@@ -4,6 +4,7 @@
 #include <Python.h>
 
 #include "pybiomes.c"
+#include "objects/range.c"
 #include "objects/generator.c"
 #include "modules/versions.c"
 #include "modules/dimensions.c"
@@ -25,6 +26,10 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
     if (PyType_Ready(&GeneratorType) < 0) {
         return NULL;
     }
+
+    if (PyType_Ready(&RangeType) < 0) {
+        return NULL;
+    }
     
     PyObject *base = PyModule_Create(&pybiomes);
 
@@ -32,12 +37,6 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
     PyObject *dimensions = PyInit_dimensions(&pybiomes);
     PyObject *biomes = PyInit_biomes(&pybiomes);
 
-
-    // Py_INCREF(versions);
-    // PyModule_Add(base, "versions", versions);
-
-    // Py_INCREF(dimensions);
-    // PyModule_Add(base, "dimensions", dimensions);
     PyObject *moduleDict = PyImport_GetModuleDict();
 
     Py_INCREF(versions);
@@ -48,11 +47,13 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
 
     Py_INCREF(biomes);
     PyDict_SetItemString(moduleDict, "pybiomes.biomes", biomes);
+    PyModule_AddObject(base, "biomes", biomes);
 
     Py_INCREF(&GeneratorType);
     PyModule_AddObject(base, "Generator", (PyObject *)&GeneratorType);
 
-    PyModule_AddObject(base, "biomes", biomes);
+    Py_INCREF(&RangeType);
+    PyModule_AddObject(base, "Range", (PyObject *)&RangeType);
 
     return base; 
 }

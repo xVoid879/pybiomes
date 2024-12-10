@@ -80,9 +80,37 @@ static PyObject *Generator_get_biome_at(GeneratorObject *self, PyObject *args) {
     return PyLong_FromLong(id);
 }
 
+static PyObject *Generator_gen_biomes(GeneratorObject *self, PyObject *args) {
+    PyObject *range;
+
+    if (!PyArg_ParseTuple(args, "O", &range)) {
+        return NULL;
+    }
+
+    RangeObject *range_cast = (RangeObject *)range;
+
+    Range r = range_cast->range;
+
+    int *biomeIds = allocCache(&self->generator, r);
+    genBiomes(&self->generator, biomeIds, r);
+
+    size_t len = getMinCacheSize(&self->generator, r.scale, r.sx, r.sy, r.sz);
+
+    PyObject *list = PyList_New(len);
+
+    for (size_t i = 0; i < len; i++) {
+        PyList_SetItem(list, i, PyLong_FromLong(biomeIds[i]));
+    }
+
+    free(biomeIds);
+
+    return list;
+}
+
 static PyMethodDef Generator_methods[] = {
     {"apply_seed", (PyCFunction) Generator_apply_seed, METH_VARARGS, "Applies a seed to the generator"},
     {"get_biome_at", (PyCFunction) Generator_get_biome_at, METH_VARARGS, "Get the biome at the specified location"},
+    {"gen_biomes", (PyCFunction) Generator_gen_biomes, METH_VARARGS, "Get the biome at the specified location"},
     {NULL}  /* Sentinel */
 };
 
