@@ -3,14 +3,22 @@ import pybiomes
 from pybiomes.versions import MC_1_21_1
 from pybiomes.dimensions import DIM_OVERWORLD
 
-r = pybiomes.Range(scale=16, x=0, y=15, z=0, sx=100, sy=1, sz=100)
+finder = pybiomes.Finder(MC_1_21_1)
 generator = pybiomes.Generator(MC_1_21_1, 0)
-generator.apply_seed(123, DIM_OVERWORLD)
 
-biome_ids = generator.gen_biomes(r)
+for lower48 in range(1000000):
+    pos = finder.get_structure_pos(pybiomes.structures.Outpost, lower48, 0, 0)
+    
+    if not pos:
+        continue
 
-# for seed in range(100000):
-    # generator.apply_seed(seed, DIM_OVERWORLD)
-    # biome_id = generator.get_biome_at(1, 0, 60, 0)
-    # if biome_id == pybiomes.biomes.mushroom_fields:
-        # print(seed)
+    if pos.x >= 16 or pos.z >= 16:
+        continue
+
+    for upper16 in range(0x10000):
+        seed = lower48 | (upper16 << 48)
+        generator.apply_seed(seed, DIM_OVERWORLD)
+
+        if generator.is_viable_structure_pos(pybiomes.structures.Outpost, pos.x, pos.z, 0):
+            print(seed) 
+            exit()

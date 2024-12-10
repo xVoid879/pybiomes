@@ -4,11 +4,16 @@
 #include <Python.h>
 
 #include "pybiomes.c"
+
 #include "objects/range.c"
 #include "objects/generator.c"
+#include "objects/position.c"
+#include "objects/finder.c"
+
 #include "modules/versions.c"
 #include "modules/dimensions.c"
 #include "modules/biomes.c"
+#include "modules/structures.c"
 
 static PyMethodDef base_methods[] = {
     {NULL, NULL, 0, NULL}
@@ -30,12 +35,21 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
     if (PyType_Ready(&RangeType) < 0) {
         return NULL;
     }
+
+    if (PyType_Ready(&FinderType) < 0) {
+        return NULL;
+    }
+
+    if (PyType_Ready(&PosType) < 0) {
+        return NULL;
+    }
     
     PyObject *base = PyModule_Create(&pybiomes);
 
     PyObject *versions = PyInit_versions(&pybiomes);
     PyObject *dimensions = PyInit_dimensions(&pybiomes);
     PyObject *biomes = PyInit_biomes(&pybiomes);
+    PyObject *structures = PyInit_structures(&pybiomes);
 
     PyObject *moduleDict = PyImport_GetModuleDict();
 
@@ -44,6 +58,10 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
 
     Py_INCREF(dimensions);
     PyDict_SetItemString(moduleDict, "pybiomes.dimensions", dimensions);
+
+    Py_INCREF(structures);
+    PyDict_SetItemString(moduleDict, "pybiomes.structures", structures);
+    PyModule_AddObject(base, "structures", structures);
 
     Py_INCREF(biomes);
     PyDict_SetItemString(moduleDict, "pybiomes.biomes", biomes);
@@ -54,6 +72,12 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
 
     Py_INCREF(&RangeType);
     PyModule_AddObject(base, "Range", (PyObject *)&RangeType);
+
+    Py_INCREF(&FinderType);
+    PyModule_AddObject(base, "Finder", (PyObject *)&FinderType);
+
+    Py_INCREF(&PosType);
+    PyModule_AddObject(base, "Pos", (PyObject *)&PosType);
 
     return base; 
 }

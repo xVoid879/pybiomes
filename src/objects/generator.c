@@ -57,10 +57,10 @@ static PyMemberDef Generator_members[] = {
 };
 
 static PyObject *Generator_apply_seed(GeneratorObject *self, PyObject *args) {
-    long seed;
+    uint64_t seed;
     int dimension;
 
-    if (!PyArg_ParseTuple(args, "li", &seed, &dimension)) {
+    if (!PyArg_ParseTuple(args, "ki", &seed, &dimension)) {
         return NULL;
     }
 
@@ -107,10 +107,23 @@ static PyObject *Generator_gen_biomes(GeneratorObject *self, PyObject *args) {
     return list;
 }
 
+static PyObject *Generator_is_viable_structure_pos(GeneratorObject *self, PyObject *args) {
+    int structure, x, z;
+    uint32_t flags;
+
+    if (!PyArg_ParseTuple(args, "iiii", &structure, &x, &z, &flags)) {
+        return NULL;
+    }
+
+    int ret = isViableStructurePos(structure, &self->generator, x, z, flags);
+    return PyBool_FromLong(ret);
+}
+
 static PyMethodDef Generator_methods[] = {
     {"apply_seed", (PyCFunction) Generator_apply_seed, METH_VARARGS, "Applies a seed to the generator"},
     {"get_biome_at", (PyCFunction) Generator_get_biome_at, METH_VARARGS, "Get the biome at the specified location"},
     {"gen_biomes", (PyCFunction) Generator_gen_biomes, METH_VARARGS, "Get the biome at the specified location"},
+    {"is_viable_structure_pos", (PyCFunction) Generator_is_viable_structure_pos, METH_VARARGS, "Get the biome at the specified location"},
     {NULL}  /* Sentinel */
 };
 
