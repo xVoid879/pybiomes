@@ -60,7 +60,7 @@ static PyObject *Generator_apply_seed(GeneratorObject *self, PyObject *args) {
     uint64_t seed;
     int dimension;
 
-    if (!PyArg_ParseTuple(args, "ki", &seed, &dimension)) {
+    if (!PyArg_ParseTuple(args, "Ki", &seed, &dimension)) {
         return NULL;
     }
 
