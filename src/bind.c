@@ -9,6 +9,7 @@
 #include "objects/generator.c"
 #include "objects/position.c"
 #include "objects/finder.c"
+#include "objects/rng.c"
 
 #include "modules/versions.c"
 #include "modules/dimensions.c"
@@ -41,6 +42,10 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
     }
 
     if (PyType_Ready(&PosType) < 0) {
+        return NULL;
+    }
+
+    if (PyType_Ready(&RngType) < 0) {
         return NULL;
     }
     
@@ -78,6 +83,9 @@ PyMODINIT_FUNC PyInit_pybiomes(void){
 
     Py_INCREF(&PosType);
     PyModule_AddObject(base, "Pos", (PyObject *)&PosType);
+	
+    Py_INCREF(&RngType);
+    PyModule_AddObject(base, "Rng", (PyObject *)&RngType);
 
     return base; 
 }
