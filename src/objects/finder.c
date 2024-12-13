@@ -47,11 +47,23 @@ static int Finder_init(FinderObject *self, PyObject *args, PyObject *kwds) {
     return 0;
 }
 
+static PyObject *Finder_chunk_generate_rnd(FinderObject *self, PyObject *args) {
+    uint64_t seed;
+    int chunkX;
+	int chunkZ;
+
+    if (!PyArg_ParseTuple(args, "Kii", &seed, &chunkX, &chunkZ)) {
+        return NULL;
+    }
+	uint64_t rnd = chunkGenerateRnd(seed, chunkX, chunkZ);
+    return PyLong_FromLongLong(rnd);
+}
+
 static PyObject *Finder_get_structure_pos(FinderObject *self, PyObject *args) { 
     int structure, reg_x, reg_z;
-    long seed;
+    uint64_t seed;
 
-    if (!PyArg_ParseTuple(args, "ilii", &structure, &seed, &reg_x, &reg_z)) {
+    if (!PyArg_ParseTuple(args, "iKii", &structure, &seed, &reg_x, &reg_z)) {
         return NULL;
     }
 
@@ -75,6 +87,7 @@ static PyMemberDef Finder_members[] = {
 };
 
 static PyMethodDef Finder_methods[] = {
+    {"chunk_generate_rnd", (PyCFunction)Finder_chunk_generate_rnd, METH_VARARGS, "Initialises and returns a random seed used in the chunk generation"},
     {"get_structure_pos", (PyCFunction)Finder_get_structure_pos, METH_VARARGS, "Finds a structures position within the given region"},
     {NULL}  /* Sentinel */
 };
