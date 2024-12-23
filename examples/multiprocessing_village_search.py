@@ -21,6 +21,7 @@ purposes. The single-threaded version processes the structure seeds serially
 and is used to compare the performance of the multiprocessing version.
 """
 from typing import Optional
+from math import floor
 from multiprocessing import Pool
 import time
 
@@ -87,7 +88,12 @@ def process_structure_seed(lower48: int) -> Optional[int]:
     global GENERATOR
     GENERATOR.apply_seed(lower48, DIM_OVERWORLD)
     finder = pybiomes.Finder(MC_1_19_2)
-    pos = finder.get_structure_pos(Village, lower48, 0, -2)
+    # Get structure region - can by found by dividing chunk by region size
+    # For recent versions of minecraft, this is 34 for Villages. See cubiomes
+    # for more details.
+    region_x = floor((FILTER_CRITERIA["village"]["pos"].x >> 4) / 34)
+    region_z = floor((FILTER_CRITERIA["village"]["pos"].z >> 4) / 34)
+    pos = finder.get_structure_pos(Village, lower48, region_x, region_z)
     if (pos
        and pos.x == FILTER_CRITERIA["village"]["pos"].x
        and pos.z == FILTER_CRITERIA["village"]["pos"].z):
