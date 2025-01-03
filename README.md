@@ -1,5 +1,5 @@
 # pybiomes
-Python bindings for cubiomes
+Python bindings for cubiomes (currently incomplete)
 
 # installation
 
