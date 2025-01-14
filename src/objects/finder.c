@@ -47,6 +47,29 @@ static int Finder_init(FinderObject *self, PyObject *args, PyObject *kwds) {
     return 0;
 }
 
+static PyObject *Finder_get_structure_config(FinderObject *self, PyObject *args) {
+	int structureType;
+
+    if (!PyArg_ParseTuple(args, "i", &structureType)) {
+        return NULL;
+    }
+	StructureConfig sc;
+	getStructureConfig(structureType, self->version, &sc);
+	
+    PyObject *dict = PyDict_New();
+
+    // Add struct fields to dictionary
+    PyDict_SetItemString(dict, "salt", PyLong_FromLong(sc.salt));
+    PyDict_SetItemString(dict, "regionSize", PyLong_FromLong(sc.regionSize));
+    PyDict_SetItemString(dict, "chunkRange", PyLong_FromLong(sc.chunkRange));
+    PyDict_SetItemString(dict, "structType", PyLong_FromLong(sc.structType));
+    PyDict_SetItemString(dict, "dim", PyLong_FromLong(sc.dim));
+    PyDict_SetItemString(dict, "rarity", PyFloat_FromDouble(sc.rarity));
+	
+	return dict;
+	
+}
+
 static PyObject *Finder_chunk_generate_rnd(FinderObject *self, PyObject *args) {
     uint64_t seed;
     int chunkX;
@@ -87,6 +110,7 @@ static PyMemberDef Finder_members[] = {
 };
 
 static PyMethodDef Finder_methods[] = {
+    {"get_structure_config", (PyCFunction)Finder_get_structure_config, METH_VARARGS, "Finds a structure's configuration parameters"},
     {"chunk_generate_rnd", (PyCFunction)Finder_chunk_generate_rnd, METH_VARARGS, "Initialises and returns a random seed used in the chunk generation"},
     {"get_structure_pos", (PyCFunction)Finder_get_structure_pos, METH_VARARGS, "Finds a structures position within the given region"},
     {NULL}  /* Sentinel */
