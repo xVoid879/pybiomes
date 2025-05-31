@@ -26,7 +26,7 @@ class JavaRandom:
             if bits - val + (bound - 1) >= 0:
                 return val
 
-def simulate_fungus_and_count_shroomlights(feature_seed):
+def simulate_big_fungus_with_height_24(feature_seed):
     rnd = JavaRandom(feature_seed & ((1 << 48) - 1))
 
     if rnd.nextInt(5) != 0:
@@ -38,17 +38,7 @@ def simulate_fungus_and_count_shroomlights(feature_seed):
 
     is_big = rnd.nextFloat() < 0.06  # 6% chance for big fungus (3x3 stem)
 
-    shroomlight_count = 0
-    if is_big:
-        for dx in [-1, 0, 1]:
-            for dz in [-1, 0, 1]:
-                if abs(dx) + abs(dz) > 1:
-                    continue  # skip corners (vanilla logic)
-                for y in range(stem_height):
-                    if rnd.nextFloat() < 0.1:
-                        shroomlight_count += 1
-
-    return stem_height, shroomlight_count, is_big
+    return stem_height, is_big
 
 def main():
     generator = pybiomes.Generator(MC_1_16_5, 0)
@@ -61,12 +51,12 @@ def main():
             continue
 
         feature_seed = get_feature_seed(seed, CHUNK_X, CHUNK_Z, FEATURE_SALT)
-        result = simulate_fungus_and_count_shroomlights(feature_seed)
+        result = simulate_big_fungus_with_height_24(feature_seed)
 
         if result:
-            stem_height, shroomlights, is_big = result
+            stem_height, is_big = result
             if stem_height == 24 and is_big:
-                print(f"Seed {seed} has BIG warped fungus with stem height 24 and {shroomlights} shroomlight(s)")
+                print(f"Seed {seed} has BIG warped fungus with stem height 24")
 
 if __name__ == "__main__":
     main()
