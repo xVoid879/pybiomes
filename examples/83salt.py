@@ -15,6 +15,8 @@ class JavaRandom:
     def next(self, bits):
         self.seed = (self.seed * 0x5DEECE66D + 0xB) & ((1 << 48) - 1)
         return self.seed >> (48 - bits)
+    def nextFloat(self):
+        return self.next(24) / float(1 << 24)
     def nextInt(self, bound):
         if (bound & (bound - 1)) == 0:
             return (bound * self.next(31)) >> 31
@@ -24,32 +26,47 @@ class JavaRandom:
             if bits - val + (bound - 1) >= 0:
                 return val
 
-def fungus_has_stem_height_24(feature_seed):
+def simulate_fungus_and_count_shroomlights(feature_seed):
     rnd = JavaRandom(feature_seed & ((1 << 48) - 1))
-    
-    # Mth.nextInt(random, 4, 13) → returns value between 4 and 13 inclusive
-    n2 = rnd.nextInt(10) + 4  # nextInt(10) gives 0–9, then +4 = 4–13
-    
-    # 1 in 12 chance of doubling
-    if rnd.nextInt(12) == 0:
-        n2 *= 2
 
-    return n2 == 24
+    if rnd.nextInt(5) != 0:
+        return None  # fungus does not generate
+
+    stem_height = rnd.nextInt(10) + 4  # 4–13
+    if rnd.nextInt(12) == 0:
+        stem_height *= 2  # double height (up to 26)
+
+    is_big = rnd.nextFloat() < 0.06  # 6% chance for big fungus (3x3 stem)
+
+    shroomlight_count = 0
+    if is_big:
+        for dx in [-1, 0, 1]:
+            for dz in [-1, 0, 1]:
+                if abs(dx) + abs(dz) > 1:
+                    continue  # skip corners (vanilla logic)
+                for y in range(stem_height):
+                    if rnd.nextFloat() < 0.1:
+                        shroomlight_count += 1
+
+    return stem_height, shroomlight_count, is_big
 
 def main():
     generator = pybiomes.Generator(MC_1_16_5, 0)
-    
-    for seed in range(100000):
+
+    for seed in range(1000000000):
         generator.apply_seed(seed, DIM_NETHER)
-        
+
         biome_id = generator.get_biome_at(CHUNK_X * 16 + 8, 0, CHUNK_Z * 16 + 8, 0)
         if biome_id != pybiomes.biomes.warped_forest:
             continue
-        
+
         feature_seed = get_feature_seed(seed, CHUNK_X, CHUNK_Z, FEATURE_SALT)
-        
-        if fungus_has_stem_height_24(feature_seed):
-            print(f"Seed {seed} has warped fungus in chunk (0,0) with stem height 24")
+        result = simulate_fungus_and_count_shroomlights(feature_seed)
+
+        if result:
+            stem_height, shroomlights, is_big = result
+            if stem_height == 24 and is_big:
+                print(f"Seed {seed} has BIG warped fungus with stem height 24 and {shroomlights} shroomlight(s)")
 
 if __name__ == "__main__":
     main()
