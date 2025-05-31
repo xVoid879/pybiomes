@@ -24,9 +24,18 @@ class JavaRandom:
             if bits - val + (bound - 1) >= 0:
                 return val
 
-def feature_generates(feature_seed):
+def fungus_has_stem_height_24(feature_seed):
     rnd = JavaRandom(feature_seed & ((1 << 48) - 1))
-    return rnd.nextInt(5) == 0  
+    
+    # Mth.nextInt(random, 4, 13) → returns value between 4 and 13 inclusive
+    n2 = rnd.nextInt(10) + 4  # nextInt(10) gives 0–9, then +4 = 4–13
+    
+    # 1 in 12 chance of doubling
+    if rnd.nextInt(12) == 0:
+        n2 *= 2
+
+    return n2 == 24
+
 def main():
     generator = pybiomes.Generator(MC_1_16_5, 0)
     
@@ -39,8 +48,8 @@ def main():
         
         feature_seed = get_feature_seed(seed, CHUNK_X, CHUNK_Z, FEATURE_SALT)
         
-        if feature_generates(feature_seed):
-            print(f"Seed {seed} generates warped fungus in chunk (0,0) biome warped_forest")
+        if fungus_has_stem_height_24(feature_seed):
+            print(f"Seed {seed} has warped fungus in chunk (0,0) with stem height 24")
 
 if __name__ == "__main__":
     main()
