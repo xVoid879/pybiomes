@@ -1,57 +1,6 @@
-# pybiomes
-Python bindings for cubiomes (currently incomplete)
+**Copy of scriptline's pybiome but for a huge fungus tree with the most shroomlights**
 
-# installation
-
-Tested on Linux, but should work fine on Windows.
-
-```bash
-git clone https://github.com/ScriptLineStudios/pybiomes --recursive
-pip install -e .
-```
-
-# examples
-
-Searching for mushroom islands.
-```python
-import pybiomes
-
-from pybiomes.versions import MC_1_21_1
-from pybiomes.dimensions import DIM_OVERWORLD
-
-generator = pybiomes.Generator(MC_1_21_1, 0)
-
-for seed in range(100000):
-    generator.apply_seed(seed, DIM_OVERWORLD)
-    biome_id = generator.get_biome_at(1, 0, 60, 0)
-    if biome_id == pybiomes.biomes.mushroom_fields:
-        print(seed)
-```
-
-Searching for outposts.
-```python
-import pybiomes
-
-from pybiomes.versions import MC_1_21_1
-from pybiomes.dimensions import DIM_OVERWORLD
-
-finder = pybiomes.Finder(MC_1_21_1)
-generator = pybiomes.Generator(MC_1_21_1, 0)
-
-for lower48 in range(1000000):
-    pos = finder.get_structure_pos(pybiomes.structures.Outpost, lower48, 0, 0)
-    
-    if not pos:
-        continue
-
-    if pos.x >= 16 or pos.z >= 16:
-        continue
-
-    for upper16 in range(0x10000):
-        seed = lower48 | (upper16 << 48)
-        generator.apply_seed(seed, DIM_OVERWORLD)
-
-        if generator.is_viable_structure_pos(pybiomes.structures.Outpost, pos.x, pos.z, 0):
-            print(seed) 
-            exit()
-```
+1. Create code to detect warped fungus tree (salt 80003 in 1.16.5) in chunk 0,0 (DONE)
+2. Filter using stem height of 24 (which has the most shroomlights that can be placed)
+3. Simulate shroomlight placement
+   
