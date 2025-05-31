@@ -4,3 +4,4 @@
 2. Filter using stem height of 24 (which has the most shroomlights that can be placed)
 3. Simulate shroomlight placement
    
+Code is in examples
